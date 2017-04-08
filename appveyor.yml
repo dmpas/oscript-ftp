@@ -1,0 +1,36 @@
+version: 0.1.0.{build}
+before_build:
+- ps: nuget restore
+init:
+- ps: Set-WinSystemLocale ru-RU
+- ps: Start-Sleep -s 5
+- ps: Restart-Computer
+install:
+- cmd: >-
+    choco install onescript.cli -source https://www.myget.org/F/onescript -y
+
+    refreshenv
+
+    opm install opm
+
+build:
+  verbosity: minimal
+test_script:
+- ps: nunit3-console --x86 NUnitTests\bin\Debug\NUnitTests.dll
+
+after_build:
+# Если в компоненте несколько DLL, нужно указать каждую.
+# Указывать по маске *.dll не стоит, потому что тут же лежат
+# библиотеки из NuGet - ОдноСкрипт и все зависимости
+- cmd: >-
+    copy oscript-component\bin\Debug\oscript-ftp.dll oslib\bin\
+
+    cd oslib
+
+    opm build .
+
+    cd ..
+
+artifacts:
+- path: oslib\*.ospx
+  name: ftp
