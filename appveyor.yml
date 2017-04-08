@@ -23,7 +23,7 @@ after_build:
 # Указывать по маске *.dll не стоит, потому что тут же лежат
 # библиотеки из NuGet - ОдноСкрипт и все зависимости
 - cmd: >-
-    copy oscript-component\bin\Debug\oscript-ftp.dll oslib\bin\
+    copy oscript-ftp\bin\Debug\oscript-ftp.dll oslib\bin\
 
     cd oslib
 
