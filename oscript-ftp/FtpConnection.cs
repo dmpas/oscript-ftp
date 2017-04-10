@@ -14,6 +14,8 @@ namespace oscriptFtp
 	[ContextClass("FTPСоединение")]
 	public sealed class FtpConnection : AutoContext<FtpConnection>
 	{
+		private string _currentDirectory = "/";
+
 		public FtpConnection(
 			string server,
 			int port = 0,
@@ -75,7 +77,8 @@ namespace oscriptFtp
 
 		FtpWebRequest GetRequest(string path)
 		{
-			var request = (FtpWebRequest)WebRequest.Create(GetUri(path));
+			var uri = GetUri(path);
+			var request = (FtpWebRequest)WebRequest.Create(uri);
 			if (!string.IsNullOrEmpty(User))
 			{
 				try
@@ -83,6 +86,9 @@ namespace oscriptFtp
 					request.UseDefaultCredentials = false;
 				}
 				catch (NotImplementedException)
+				{
+				}
+				catch (NotSupportedException)
 				{
 				}
 				request.Credentials = new NetworkCredential(User, Password);
@@ -102,7 +108,6 @@ namespace oscriptFtp
 
 			// дикий костыль: сначала берём список имён
 			// потом берём расширенный список и в нём ищем имена
-
 
 			var unresolvedNames = new List<string>();
 			{
@@ -160,10 +165,11 @@ namespace oscriptFtp
 		{
 			var result = ArrayImpl.Constructor() as ArrayImpl;
 
-			if (!path.EndsWith("/", StringComparison.Ordinal))
+			if (!string.IsNullOrEmpty(path) && !path.EndsWith("/", StringComparison.Ordinal))
 			{
 				path += "/";
 			}
+			path = UniteFtpPath(_currentDirectory, path);
 
 			IList<string> files, directories;
 
@@ -174,6 +180,15 @@ namespace oscriptFtp
 			catch (System.Net.ProtocolViolationException)
 			{
 				return result;
+			}
+			catch (WebException ex)
+			{
+				var error = (FtpWebResponse)ex.Response;
+				if (error.StatusCode == FtpStatusCode.ActionNotTakenFileUnavailable)
+				{
+					return result;
+				}
+				throw ex;
 			}
 			catch
 			{
@@ -209,10 +224,13 @@ namespace oscriptFtp
 			var request = GetRequest(remoteFilePath);
 			request.Method = WebRequestMethods.Ftp.UploadFile;
 
+			var requestStream = request.GetRequestStream();
+
 			using (var file = new FileStream(localFilePath, FileMode.Open))
 			{
-				file.CopyTo(request.GetRequestStream());
+				file.CopyTo(requestStream);
 			}
+			requestStream.Close();
 
 			request.GetResponse();
 		}
@@ -251,8 +269,7 @@ namespace oscriptFtp
 			request.GetResponse();
 		}
 
-		[ContextMethod("ТекущийКаталог")]
-		public string GetCurrentDirectory()
+		public string GetWorkingDirectory()
 		{
 			var request = GetRequest("");
 			request.Method = WebRequestMethods.Ftp.PrintWorkingDirectory;
@@ -262,21 +279,58 @@ namespace oscriptFtp
 			return reader.ReadToEnd();
 		}
 
+		private string UniteFtpPath(string a, string b)
+		{
+			if (b.StartsWith("/", StringComparison.Ordinal))
+			{
+				return b;
+			}
+			var uri = GetUri(string.Format("{0}{1}", a, b));
+			return uri.LocalPath;
+		}
+
+		[ContextMethod("ТекущийКаталог")]
+		public string GetCurrentDirectory()
+		{
+			return _currentDirectory;
+		}
+
+		[ContextMethod("УстановитьТекущийКаталог")]
+		public void SetCurrentDirectory(string directory)
+		{
+			_currentDirectory = UniteFtpPath(_currentDirectory, directory);
+			if (!_currentDirectory.EndsWith("/", StringComparison.Ordinal))
+			{
+				_currentDirectory += "/";
+			}
+		}
+
+		[ContextMethod("СоздатьКаталог")]
+		public void CreateDirectory(string dirName)
+		{
+			var request = GetRequest(dirName);
+			request.Method = WebRequestMethods.Ftp.MakeDirectory;
+			var response = (FtpWebResponse)request.GetResponse();
+
+		}
+
+		[ScriptConstructor]
 		public static IRuntimeContextInstance Constructor(
-			string server,
-			int port = 0,
-			string userName = null,
-			string password = null,
+			IValue server,
+			IValue port = null,
+			IValue userName = null,
+			IValue password = null,
 			InternetProxyContext proxy = null,
-			bool? passiveConnection = null,
-			int timeout = 0,
+			IValue passiveConnection = null,
+			IValue timeout = null,
 			IValue secureConnection = null
 		)
 		{
-			var conn = new FtpConnection(server, port,
-			                             userName, password, 
-			                             proxy, passiveConnection ?? false,
-			                             timeout, secureConnection);
+			var conn = new FtpConnection(server.AsString(),
+			                             (int)(port?.AsNumber() ?? 21),
+			                             userName?.AsString(), password?.AsString(), 
+			                             proxy, passiveConnection?.AsBoolean() ?? false,
+			                             (int)(timeout?.AsNumber() ?? 0), secureConnection);
 			return conn;
 		}
 	}
