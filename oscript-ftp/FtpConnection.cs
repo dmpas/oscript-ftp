@@ -121,7 +121,7 @@ namespace oscriptFtp
 			return builder.Uri;
 		}
 
-		FtpWebRequest GetRequest(string path)
+		internal FtpWebRequest GetRequest(string path)
 		{
 			var uri = GetUri(path);
 			var request = (FtpWebRequest)WebRequest.Create(uri);
@@ -256,7 +256,7 @@ namespace oscriptFtp
 
 			foreach (var dirName in directories)
 			{
-				var dirEntry = new FtpFile(path, dirName, isDir: true);
+				var dirEntry = new FtpFile(this, path, dirName, isDir: true);
 				if (maskChecker?.IsMatch(dirName) ?? true)
 				{
 					result.Add(dirEntry);
@@ -275,7 +275,7 @@ namespace oscriptFtp
 			{
 				if (maskChecker?.IsMatch(fileName) ?? true)
 				{
-					var fileEntry = new FtpFile(path, fileName);
+					var fileEntry = new FtpFile(this, path, fileName);
 					result.Add(fileEntry);
 				}
 			}

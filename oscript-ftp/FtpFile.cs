@@ -1,6 +1,7 @@
 ﻿using System;
 using ScriptEngine.Machine.Contexts;
 using ScriptEngine.Machine;
+using System.Net;
 
 namespace oscriptFtp
 {
@@ -11,14 +12,16 @@ namespace oscriptFtp
 	public sealed class FtpFile : AutoContext<FtpFile>
 	{
 		private readonly bool _isDirectory;
+		private readonly FtpConnection _conn;
 
 		/// <summary>
 		/// Создаёт описание файла.
 		/// </summary>
+		/// <param name="conn">FTP-Соединение.</param>
 		/// <param name="path">Путь к файлу.</param>
 		/// <param name="filename">Имя файла.</param>
 		/// <param name="isDir"><c>true</c> если это каталог.</param>
-		public FtpFile(string path, string filename, bool isDir = false)
+		public FtpFile(FtpConnection conn, string path, string filename, bool isDir = false)
 		{
 			Path = path;
 			if (!Path.EndsWith("/", StringComparison.Ordinal))
@@ -30,6 +33,7 @@ namespace oscriptFtp
 			Extension = System.IO.Path.GetExtension(Name);
 			BaseName = System.IO.Path.GetFileNameWithoutExtension(Name);
 			_isDirectory = isDir;
+			_conn = conn;
 		}
 
 		/// <summary>
@@ -85,6 +89,52 @@ namespace oscriptFtp
 		public bool IsDirectory()
 		{
 			return _isDirectory;
+		}
+
+		/// <summary>
+		/// Получает время последнего изменения файла.
+		/// </summary>
+		/// <returns>Время последнего изменения.</returns>
+		[ContextMethod("ПолучитьВремяИзменения")]
+		public DateTime GetModificationTime()
+		{
+			FtpWebRequest request = _conn.GetRequest(FullName);
+			request.Method = WebRequestMethods.Ftp.GetDateTimestamp;
+			FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+			return response.LastModified;
+		}
+
+		/// <summary>
+		/// Получает атрибут невидимости.
+		/// </summary>
+		/// <returns><c>true</c>, если у файла есть атрибут "Скрыты", <c>false</c> в противном случае.</returns>
+		[ContextMethod("ПолучитьНевидимость")]
+		public bool GetHidden()
+		{
+			throw new NotImplementedException();
+		}
+
+		/// <summary>
+		/// Получает атрибут "Только для чтения".
+		/// </summary>
+		/// <returns><c>true</c>, если установлен атрибут "Только для чтения", <c>false</c> в противном случае.</returns>
+		[ContextMethod("ПолучитьТолькоЧтение")]
+		public bool GetReadOnly()
+		{
+			throw new NotImplementedException();
+		}
+
+		/// <summary>
+		/// Определяет размер файла.
+		/// </summary>
+		/// <returns>Размер файла.</returns>
+		[ContextMethod("Размер")]
+		public long Size()
+		{
+			FtpWebRequest request = _conn.GetRequest(FullName);
+			request.Method = WebRequestMethods.Ftp.GetFileSize;
+			FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+			return response.ContentLength;
 		}
 
 		/// <summary>

@@ -29,7 +29,7 @@ namespace TestApp
 			var process = engine.CreateProcess(new MainClass(), script);
 
 			var conn = FtpConnection.Constructor(ValueFactory.Create("10.2.150.7"), ValueFactory.Create(21),
-			                                     ValueFactory.Create("update"), ValueFactory.Create("Black34")) as FtpConnection;
+			                                     ValueFactory.Create("update"), ValueFactory.Create("")) as FtpConnection;
 			conn.SetCurrentDirectory("Storage1C");
 			Console.WriteLine("PWD: {0}", conn.GetCurrentDirectory());
 			conn.SetCurrentDirectory("Obmen");
@@ -42,7 +42,8 @@ namespace TestApp
 			foreach (var el in files)
 			{
 				var file = el as FtpFile;
-				Console.WriteLine("file: {0}", el);
+				Console.WriteLine("file: {0}, Size={1}, Time={2}", el, file.Size(), file.GetModificationTime());
+
 				if (first)
 				{
 					conn.Get(file.FullName, @"C:\temp\some.zip");
