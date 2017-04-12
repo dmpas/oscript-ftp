@@ -1,11 +1,45 @@
 ﻿using System;
-using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
 namespace oscriptFtp
 {
 	public static class FtpCrutch
 	{
+
+		public static Regex GetRegexForFileMask(string FileMask)
+		{
+			var regexBuilder = new StringBuilder();
+			foreach (var c in FileMask)
+			{
+				if (c == '.')
+				{
+					regexBuilder.Append("[.]");
+				}
+				else
+				if (c == '*')
+				{
+					regexBuilder.Append(".*");
+				}
+				else
+				if (c == '?')
+				{
+					regexBuilder.Append(".");
+				}
+				else
+				if (("+()^$.{}[]|\\".IndexOf(c) != -1))
+				{
+					regexBuilder.Append("\\").Append(c);
+				}
+				else
+				{
+					regexBuilder.Append(c);
+				}
+			}
+
+			return new Regex(regexBuilder.ToString(), RegexOptions.Compiled);
+		}
 
 		public static IDictionary<string, string> MatchLists(
 			IReadOnlyList<string> fullData,

@@ -4,7 +4,7 @@ using ScriptEngine.Machine.Contexts;
 using ScriptEngine.HostedScript.Library.Http;
 using ScriptEngine.HostedScript.Library;
 using System.Net;
-using System.Text;
+using System.Text.RegularExpressions;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
@@ -165,6 +165,12 @@ namespace oscriptFtp
 		{
 			var result = ArrayImpl.Constructor() as ArrayImpl;
 
+			Regex maskChecker = null;
+			if (!string.IsNullOrEmpty(mask))
+			{
+				maskChecker = FtpCrutch.GetRegexForFileMask(mask);
+			}
+
 			if (!string.IsNullOrEmpty(path) && !path.EndsWith("/", StringComparison.Ordinal))
 			{
 				path += "/";
@@ -198,7 +204,10 @@ namespace oscriptFtp
 			foreach (var dirName in directories)
 			{
 				var dirEntry = new FtpFile(path, dirName, isDir: true);
-				result.Add(dirEntry);
+				if (maskChecker?.IsMatch(dirName) ?? true)
+				{
+					result.Add(dirEntry);
+				}
 				if (recursive)
 				{
 					var filesInDir = FindFiles(dirEntry.FullName, mask, recursive);
@@ -211,8 +220,11 @@ namespace oscriptFtp
 
 			foreach (var fileName in files)
 			{
-				var fileEntry = new FtpFile(path, fileName);
-				result.Add(fileEntry);
+				if (maskChecker?.IsMatch(fileName) ?? true)
+				{
+					var fileEntry = new FtpFile(path, fileName);
+					result.Add(fileEntry);
+				}
 			}
 
 			return result;
