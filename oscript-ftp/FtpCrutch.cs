@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace oscriptFtp
 {
-	public static class FtpCrutch
+	static class FtpCrutch
 	{
 
 		public static Regex GetRegexForFileMask(string FileMask)

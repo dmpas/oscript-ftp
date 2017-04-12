@@ -11,11 +11,25 @@ using System.Linq;
 
 namespace oscriptFtp
 {
+	/// <summary>
+	/// Предназначен для работы с файлами посредством FTP.
+	/// </summary>
 	[ContextClass("FTPСоединение")]
 	public sealed class FtpConnection : AutoContext<FtpConnection>
 	{
 		private string _currentDirectory = "/";
 
+		/// <summary>
+		/// Создаёт новый объект <see cref="T:oscriptFtp.FtpConnection">FTPСоединение</see>.
+		/// </summary>
+		/// <param name="server">Сервер.</param>
+		/// <param name="port">Порт. Необязательный</param>
+		/// <param name="userName">Имя пользователя. Необязательный</param>
+		/// <param name="password">Пароль. Необязательный</param>
+		/// <param name="proxy">Прокси. Необязательный</param>
+		/// <param name="passiveConnection">Пассивный режим.</param>
+		/// <param name="timeout">Таймаут.</param>
+		/// <param name="secureConnection">Защищённое соединение.</param>
 		public FtpConnection(
 			string server,
 			int port = 0,
@@ -36,27 +50,59 @@ namespace oscriptFtp
 			SecureConnection = secureConnection;
 		}
 
+		/// <summary>
+		/// Защищённое соединение.
+		/// </summary>
+		/// <value>Содержит объект защищённого соединения.</value>
 		[ContextProperty("ЗащищенноеСоединение")]
 		public IValue SecureConnection { get; }
 
+		/// <summary>
+		/// Пароль.
+		/// </summary>
+		/// <value>Пароль.</value>
 		[ContextProperty("Пароль")]
 		public string Password { get; }
 
+		/// <summary>
+		/// Пассивный режим.
+		/// </summary>
+		/// <value>Пассивный режим.</value>
 		[ContextProperty("ПассивныйРежим")]
 		public bool PassiveMode { get; }
 
+		/// <summary>
+		/// Имя пользователя.
+		/// </summary>
+		/// <value>Имя пользователя.</value>
 		[ContextProperty("Пользователь")]
 		public string User { get; }
 
+		/// <summary>
+		/// Порт.
+		/// </summary>
+		/// <value>Порт.</value>
 		[ContextProperty("Порт")]
 		public int Port { get; }
 
+		/// <summary>
+		/// Прокси.
+		/// </summary>
+		/// <value>Прокси.</value>
 		[ContextProperty("Прокси")]
 		public InternetProxyContext Proxy { get; }
 
+		/// <summary>
+		/// Сервер.
+		/// </summary>
+		/// <value>Сервер, с которым устанавливается соединение.</value>
 		[ContextProperty("Сервер")]
 		public string Server { get; }
 
+		/// <summary>
+		/// Таймаут.
+		/// </summary>
+		/// <value>Таймаут в секундах. 0 - без таймаута.</value>
 		[ContextProperty("Таймаут")]
 		public int Timeout { get; }
 
@@ -160,6 +206,13 @@ namespace oscriptFtp
 			}
 		}
 
+		/// <summary>
+		/// Ищет файлы на удалённом сервере.
+		/// </summary>
+		/// <returns>Массив.</returns>
+		/// <param name="path">Путь.</param>
+		/// <param name="mask">Маска. Необязательный</param>
+		/// <param name="recursive">Искать во вложенных каталогах.</param>
 		[ContextMethod("НайтиФайлы")]
 		public ArrayImpl FindFiles(string path, string mask = null, bool recursive = true)
 		{
@@ -230,6 +283,11 @@ namespace oscriptFtp
 			return result;
 		}
 
+		/// <summary>
+		/// Записывает локальный файл на удалённый сервер.
+		/// </summary>
+		/// <param name="localFilePath">Путь к файлу на локальном компьютере.</param>
+		/// <param name="remoteFilePath">Путь к файлу на удалённом сервере.</param>
 		[ContextMethod("Записать")]
 		public void Put(string localFilePath, string remoteFilePath)
 		{
@@ -247,6 +305,11 @@ namespace oscriptFtp
 			request.GetResponse();
 		}
 
+		/// <summary>
+		/// Скачивает файл с удалённого сервера.
+		/// </summary>
+		/// <param name="remoteFilePath">Путь к файлу ан удалённом сервере.</param>
+		/// <param name="localFilePath">Путь к файлу, в который будет записан удалённый файл.</param>
 		[ContextMethod("Получить")]
 		public void Get(string remoteFilePath, string localFilePath)
 		{
@@ -262,6 +325,11 @@ namespace oscriptFtp
 
 		}
 
+		/// <summary>
+		/// Удаляет файлы на сервере.
+		/// </summary>
+		/// <param name="path">Путь.</param>
+		/// <param name="mask">Маска. Необязательный</param>
 		[ContextMethod("Удалить")]
 		public void Delete(string path, string mask = null)
 		{
@@ -281,6 +349,11 @@ namespace oscriptFtp
 			request.GetResponse();
 		}
 
+		/// <summary>
+		/// Перемещает файл на удалённом сервере.
+		/// </summary>
+		/// <param name="currentPath">Путь к перемещаемому файлу.</param>
+		/// <param name="newPath">Новый Путь файла.</param>
 		[ContextMethod("Переместить")]
 		public void Move(string currentPath, string newPath)
 		{
@@ -291,6 +364,10 @@ namespace oscriptFtp
 			request.GetResponse();
 		}
 
+		/// <summary>
+		/// Получает рабочий каталог на удалённом сервере.
+		/// </summary>
+		/// <returns>Рабочий каталог.</returns>
 		public string GetWorkingDirectory()
 		{
 			var request = GetRequest("");
@@ -311,12 +388,20 @@ namespace oscriptFtp
 			return uri.LocalPath;
 		}
 
+		/// <summary>
+		/// Возвращает текущий каталог соединения.
+		/// </summary>
+		/// <returns>Текущий каталог.</returns>
 		[ContextMethod("ТекущийКаталог")]
 		public string GetCurrentDirectory()
 		{
 			return _currentDirectory;
 		}
 
+		/// <summary>
+		/// Устанавливает текущий каталог соединения.
+		/// </summary>
+		/// <param name="directory">Каталог.</param>
 		[ContextMethod("УстановитьТекущийКаталог")]
 		public void SetCurrentDirectory(string directory)
 		{
@@ -327,6 +412,10 @@ namespace oscriptFtp
 			}
 		}
 
+		/// <summary>
+		/// Создаёт каталог на удалённом сервере.
+		/// </summary>
+		/// <param name="dirName">Имя каталога.</param>
 		[ContextMethod("СоздатьКаталог")]
 		public void CreateDirectory(string dirName)
 		{
@@ -336,6 +425,18 @@ namespace oscriptFtp
 
 		}
 
+		/// <summary>
+		/// Создаёт объект FTPСоединение.
+		/// </summary>
+		/// <returns>FTPСоединение.</returns>
+		/// <param name="server">Подключаемый сервер.</param>
+		/// <param name="port">Порт. Необязательный</param>
+		/// <param name="userName">Имя пользователя. Необязательный</param>
+		/// <param name="password">Пароль. Необязательный</param>
+		/// <param name="proxy">Прокси. Необязательный</param>
+		/// <param name="passiveConnection">Пассивный режим. Необязательный</param>
+		/// <param name="timeout">Таймаут. Необязательный</param>
+		/// <param name="secureConnection">Защищённое соединение. Необязательный</param>
 		[ScriptConstructor]
 		public static IRuntimeContextInstance Constructor(
 			IValue server,
