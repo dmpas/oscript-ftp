@@ -265,6 +265,16 @@ namespace oscriptFtp
 		[ContextMethod("Удалить")]
 		public void Delete(string path, string mask = null)
 		{
+			if (!string.IsNullOrEmpty(mask))
+			{
+				var filesToDelete = FindFiles(path, mask, recursive: false);
+				foreach (var file in filesToDelete)
+				{
+					Delete((file as FtpFile).FullName);
+				}
+				return;
+			}
+
 			var request = GetRequest(path);
 			request.Method = WebRequestMethods.Ftp.DeleteFile;
 
