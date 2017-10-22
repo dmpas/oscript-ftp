@@ -1,12 +1,12 @@
 Описание
 	.Имя("ftp")
-	.Версия("1.0.0")
+	.Версия("1.0.1")
 	.Автор("Sergey Batanov")
 	.АдресАвтора("sergey.batanov@dmpas.ru")
 	.Описание("FTP-Клиент")
-	.ВключитьФайл("lib.config")
 	.ВключитьФайл("bin")
 	.ВключитьФайл("package-loader.os")
+	.ВключитьФайл("README.md")
 ;
 
 // vim: filetype=onescript
