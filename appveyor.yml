@@ -1,4 +1,4 @@
-version: 1.0.1-{build}
+version: 1.0.2-{build}
 environment:
   main_project: oscript-ftp
 before_build:
