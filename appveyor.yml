@@ -44,8 +44,6 @@ after_build:
 
     xcopy %main_project%\bin\%CONFIGURATION%\%main_project%.* bin\
 
-    OneScriptDocumenter.exe json bin\syntaxHelp.json %main_project%\bin\%CONFIGURATION%\%main_project%.dll
-
     opm build .
 
 artifacts:
