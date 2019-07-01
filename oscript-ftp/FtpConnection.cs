@@ -212,7 +212,7 @@ namespace oscriptFtp
 				{
 					const string magicString = "<DIR>";
 					// MS-DOS Mode
-					if (el.Value.Substring(21, magicString.Length).Equals(magicString))
+					if (el.Value.Substring(24, magicString.Length).Equals(magicString))
 					{
 						directories.Add(el.Key);
 					}
