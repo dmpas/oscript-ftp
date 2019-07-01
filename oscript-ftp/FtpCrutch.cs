@@ -11,7 +11,7 @@ using System.Collections.Generic;
 
 namespace oscriptFtp
 {
-	static class FtpCrutch
+	public static class FtpCrutch
 	{
 
 		public static Regex GetRegexForFileMask(string FileMask)
@@ -82,6 +82,36 @@ namespace oscriptFtp
 			}
 
 			return result;
+		}
+
+		public static void SortData(IDictionary<string, string> data, ref IList<string> files,
+			ref IList<string> directories)
+		{
+			foreach (var el in data)
+			{
+				if (el.Value.StartsWith("d", StringComparison.Ordinal))
+				{
+					directories.Add(el.Key);
+				}
+				else if (el.Value.StartsWith("-", StringComparison.Ordinal))
+				{
+					files.Add(el.Key);
+				}
+				else
+				{
+					const string magicString = "<DIR>";
+					// MS-DOS Mode
+					if (el.Value.Substring(24, magicString.Length).Equals(magicString))
+					{
+						directories.Add(el.Key);
+					}
+					else
+					{
+						files.Add(el.Key);
+					}
+				}
+			}
+
 		}
 
 	}

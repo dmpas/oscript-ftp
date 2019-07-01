@@ -197,31 +197,7 @@ namespace oscriptFtp
 			}
 
 			var data = FtpCrutch.MatchLists(unresolvedNames, names);
-			foreach (var el in data)
-			{
-				if (el.Value.StartsWith("d", StringComparison.Ordinal))
-				{
-					directories.Add(el.Key);
-				}
-				else
-				if (el.Value.StartsWith("-", StringComparison.Ordinal))
-				{
-					files.Add(el.Key);
-				}
-				else
-				{
-					const string magicString = "<DIR>";
-					// MS-DOS Mode
-					if (el.Value.Substring(24, magicString.Length).Equals(magicString))
-					{
-						directories.Add(el.Key);
-					}
-					else
-					{
-						files.Add(el.Key);
-					}
-				}
-			}
+			FtpCrutch.SortData(data, ref files, ref directories);
 		}
 
 		/// <summary>
