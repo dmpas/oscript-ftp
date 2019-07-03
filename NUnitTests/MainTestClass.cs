@@ -40,7 +40,7 @@ namespace NUnitTests
 			{"яязю", true}
 		};
 
-			[OneTimeSetUp]
+		[OneTimeSetUp]
 		public void Initialize()
 		{
 			host = new EngineHelpWrapper();
