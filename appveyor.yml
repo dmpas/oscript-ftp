@@ -42,6 +42,8 @@ after_build:
 
     mkdir bin
 
+    OneScriptDocumenter.exe json bin\syntaxHelp.json %main_project%\bin\%CONFIGURATION%\%main_project%.dll
+
     xcopy %main_project%\bin\%CONFIGURATION%\%main_project%.* bin\
 
     opm build .
