@@ -197,18 +197,7 @@ namespace oscriptFtp
 			}
 
 			var data = FtpCrutch.MatchLists(unresolvedNames, names);
-			foreach (var el in data)
-			{
-				if (el.Value.StartsWith("d", StringComparison.Ordinal))
-				{
-					directories.Add(el.Key);
-				}
-				else
-				if (el.Value.StartsWith("-", StringComparison.Ordinal))
-				{
-					files.Add(el.Key);
-				}
-			}
+			FtpCrutch.SortData(data, ref files, ref directories);
 		}
 
 		/// <summary>
@@ -233,7 +222,7 @@ namespace oscriptFtp
 			{
 				path += "/";
 			}
-			path = UniteFtpPath(_currentDirectory, path);
+			path = ApplyCurrentPath(path);
 
 			IList<string> files, directories;
 
@@ -288,6 +277,11 @@ namespace oscriptFtp
 			return result;
 		}
 
+		private string ApplyCurrentPath(string relative)
+		{
+			return UniteFtpPath(_currentDirectory, relative);
+		}
+
 		/// <summary>
 		/// Записывает локальный файл на удалённый сервер.
 		/// </summary>
@@ -296,7 +290,7 @@ namespace oscriptFtp
 		[ContextMethod("Записать")]
 		public void Put(string localFilePath, string remoteFilePath)
 		{
-			var request = GetRequest(remoteFilePath);
+			var request = GetRequest(ApplyCurrentPath(remoteFilePath));
 			request.Method = WebRequestMethods.Ftp.UploadFile;
 
 			var requestStream = request.GetRequestStream();
@@ -318,7 +312,7 @@ namespace oscriptFtp
 		[ContextMethod("Получить")]
 		public void Get(string remoteFilePath, string localFilePath)
 		{
-			var request = GetRequest(remoteFilePath);
+			var request = GetRequest(ApplyCurrentPath(remoteFilePath));
 			request.Method = WebRequestMethods.Ftp.DownloadFile;
 
 			var response = (FtpWebResponse)request.GetResponse();
@@ -348,7 +342,7 @@ namespace oscriptFtp
 				return;
 			}
 
-			var request = GetRequest(path);
+			var request = GetRequest(ApplyCurrentPath(path));
 			request.Method = WebRequestMethods.Ftp.DeleteFile;
 
 			request.GetResponse();
@@ -362,9 +356,9 @@ namespace oscriptFtp
 		[ContextMethod("Переместить")]
 		public void Move(string currentPath, string newPath)
 		{
-			var request = GetRequest(currentPath);
+			var request = GetRequest(ApplyCurrentPath(currentPath));
 			request.Method = WebRequestMethods.Ftp.Rename;
-			request.RenameTo = newPath;
+			request.RenameTo = ApplyCurrentPath(newPath);
 
 			request.GetResponse();
 		}
@@ -410,7 +404,7 @@ namespace oscriptFtp
 		[ContextMethod("УстановитьТекущийКаталог")]
 		public void SetCurrentDirectory(string directory)
 		{
-			_currentDirectory = UniteFtpPath(_currentDirectory, directory);
+			_currentDirectory = ApplyCurrentPath(directory);
 			if (!_currentDirectory.EndsWith("/", StringComparison.Ordinal))
 			{
 				_currentDirectory += "/";

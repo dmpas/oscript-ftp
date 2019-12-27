@@ -1,4 +1,4 @@
-version: 1.0.2-{build}
+version: 1.0.3-{build}
 environment:
   main_project: oscript-ftp
 before_build:
@@ -21,7 +21,7 @@ install:
 
     cd ..
     
-    appveyor DownloadFile https://github.com/dmpas/OneScriptDocumenter/releases/download/1.0.13/documenter.zip -FileName OneScriptDocumenter.zip
+    appveyor DownloadFile https://github.com/dmpas/OneScriptDocumenter/releases/download/1.0.14/documenter.zip -FileName OneScriptDocumenter.zip
     
     7z x OneScriptDocumenter.zip > NUL
 
@@ -42,9 +42,9 @@ after_build:
 
     mkdir bin
 
-    xcopy %main_project%\bin\%CONFIGURATION%\%main_project%.* bin\
-
     OneScriptDocumenter.exe json bin\syntaxHelp.json %main_project%\bin\%CONFIGURATION%\%main_project%.dll
+
+    xcopy %main_project%\bin\%CONFIGURATION%\%main_project%.* bin\
 
     opm build .
 
