@@ -11,7 +11,6 @@ using ScriptEngine.HostedScript;
 using ScriptEngine.Hosting;
 using ScriptEngine.Machine;
 using System;
-using System.Reflection;
 
 namespace TestApp
 {
@@ -69,10 +68,11 @@ namespace TestApp
             var port = int.Parse(cfg.GetSection("AppSettings:port").Value ?? "21");
 
             var engine = StartEngine();
+			var bslProcess = engine.Engine.NewProcess();
 			var script = engine.Loader.FromString(SCRIPT);
 			var process = engine.CreateProcess(new MainClass(), script);
 
-			var conn = FtpConnection.Constructor(null,
+			var conn = FtpConnection.Constructor(new OneScript.Types.TypeActivationContext() { CurrentProcess = bslProcess},
 				ValueFactory.Create(server), ValueFactory.Create(port),
 				ValueFactory.Create(userName), ValueFactory.Create(password),
 				null, ValueFactory.Create(false)
