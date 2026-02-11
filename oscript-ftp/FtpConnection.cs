@@ -7,12 +7,14 @@ at http://mozilla.org/MPL/2.0/.
 using System;
 using ScriptEngine.Machine;
 using ScriptEngine.Machine.Contexts;
-using ScriptEngine.HostedScript.Library.Http;
-using ScriptEngine.HostedScript.Library;
+using OneScript.StandardLibrary.Http;
+using OneScript.Contexts;
+using OneScript.StandardLibrary.Collections;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Collections.Generic;
+using OneScript.Execution;
 
 namespace oscriptFtp
 {
@@ -241,7 +243,7 @@ namespace oscriptFtp
 				{
 					return result;
 				}
-				throw ex;
+				throw;
 			}
 			catch
 			{
@@ -438,6 +440,7 @@ namespace oscriptFtp
 		/// <param name="secureConnection">Защищённое соединение. Необязательный</param>
 		[ScriptConstructor]
 		public static IRuntimeContextInstance Constructor(
+			IBslProcess process,
 			IValue server,
 			IValue port = null,
 			IValue userName = null,
@@ -448,9 +451,9 @@ namespace oscriptFtp
 			IValue secureConnection = null
 		)
 		{
-			var conn = new FtpConnection(server.AsString(),
+			var conn = new FtpConnection(server.AsString(process),
 			                             (int)(port?.AsNumber() ?? 21),
-			                             userName?.AsString(), password?.AsString(), 
+			                             userName?.AsString(process), password?.AsString(process), 
 			                             proxy, passiveConnection?.AsBoolean() ?? false,
 			                             (int)(timeout?.AsNumber() ?? 0), secureConnection);
 			return conn;

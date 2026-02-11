@@ -4,13 +4,14 @@ Mozilla Public License, v.2.0. If a copy of the MPL
 was not distributed with this file, You can obtain one 
 at http://mozilla.org/MPL/2.0/.
 ----------------------------------------------------------*/
-using System;
-using ScriptEngine.Machine;
-using ScriptEngine.HostedScript;
-using ScriptEngine.HostedScript.Library;
-using System.Configuration;
-using System.Net;
+using Microsoft.Extensions.Configuration;
+using OneScript.StandardLibrary;
 using oscriptFtp;
+using ScriptEngine.HostedScript;
+using ScriptEngine.Hosting;
+using ScriptEngine.Machine;
+using System;
+using System.Reflection;
 
 namespace TestApp
 {
@@ -20,17 +21,23 @@ namespace TestApp
 		static readonly string SCRIPT = @""
 			;
 
-		public static HostedScriptEngine StartEngine()
-		{
-			var engine = new ScriptEngine.HostedScript.HostedScriptEngine();
-			engine.Initialize();
+        public static HostedScriptEngine StartEngine()
+        {
+            var mainEngine = DefaultEngineBuilder.Create()
+                .SetDefaultOptions()
+                .SetupEnvironment(envSetup => {
+                    envSetup
+                        .AddStandardLibrary()
+                        .AddAssembly(typeof(FtpFile).Assembly);
+                })
+                .Build();
+            var engine = new HostedScriptEngine(mainEngine);
+            engine.Initialize();
 
-			engine.AttachAssembly(System.Reflection.Assembly.GetAssembly(typeof(oscriptFtp.FtpConnection)));
+            return engine;
+        }
 
-			return engine;
-		}
-
-		private static void ListFiles(FtpConnection conn)
+        private static void ListFiles(FtpConnection conn)
 		{
 			var files = conn.FindFiles("", "*.zip", true);
 			foreach (var el in files)
@@ -43,35 +50,50 @@ namespace TestApp
 
 		public static void Main(string[] args)
 		{
-			var server = ConfigurationManager.AppSettings["server"];
-			var userName = ConfigurationManager.AppSettings["userName"];
-			var password = ConfigurationManager.AppSettings["password"];
-			var port = int.Parse(ConfigurationManager.AppSettings["port"]);
-			
-			var engine = StartEngine();
+            /*
+             * Необходимо создать файл с именем appsettings.json и содержимым такого вида:
+				{
+				  "AppSettings": {
+					  "server": "ftp.dlptest.com",
+					  "userName": "dlpuser",
+					  "password": "***"
+				  }
+				}
+			*/
+            var cfg = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+				.Build();
+			var server = cfg.GetSection("AppSettings:server").Value;
+            var userName = cfg.GetSection("AppSettings:userName").Value;
+            var password = cfg.GetSection("AppSettings:password").Value;
+            var port = int.Parse(cfg.GetSection("AppSettings:port").Value ?? "21");
+
+            var engine = StartEngine();
 			var script = engine.Loader.FromString(SCRIPT);
 			var process = engine.CreateProcess(new MainClass(), script);
 
-			var conn = FtpConnection.Constructor(ValueFactory.Create(server), ValueFactory.Create(port),
-			                                     ValueFactory.Create(userName), ValueFactory.Create(password),
-			                                     null, ValueFactory.Create(true)) as FtpConnection;
+			var conn = FtpConnection.Constructor(null,
+				ValueFactory.Create(server), ValueFactory.Create(port),
+				ValueFactory.Create(userName), ValueFactory.Create(password),
+				null, ValueFactory.Create(false)
+			) as FtpConnection;
 			conn.SetCurrentDirectory("/123");
 			Console.WriteLine("PWD: {0}", conn.GetCurrentDirectory());
 
 			conn.SetCurrentDirectory("456");
 			Console.WriteLine("PWD: {0}", conn.GetCurrentDirectory());
 
-			conn.Delete(@"../", @"some.zip");
-			
-			conn.Put(@"D:\temp\some.zip", "some.zip");
-			
-			ListFiles(conn);
-			
-			conn.Move("some.zip", "../some.zip");
+            conn.Delete(@"../", @"some.zip");
+
+			conn.Put(@"C:\temp\some.zip", "/some.zip");
 			
 			ListFiles(conn);
 			
-			conn.Get(@"../some.zip", @"C:\temp\some.zip");
+			conn.Move("/some.zip", "/some2.zip");
+			
+			ListFiles(conn);
+			
+			conn.Get(@"/some2.zip", @"C:\temp\some2.zip");
 			
 			Console.WriteLine("Done.");
 		}
@@ -86,8 +108,8 @@ namespace TestApp
 			Console.WriteLine(exc.ToString());
 		}
 
-		public bool InputString(out string result, int maxLen)
-		{
+		public bool InputString(out string result, string prompt, int maxLen, bool multiline)
+        {
 			throw new NotImplementedException();
 		}
 
@@ -95,5 +117,6 @@ namespace TestApp
 		{
 			return new string[] { "1", "2", "3" }; // Здесь можно зашить список аргументов командной строки
 		}
-	}
+
+    }
 }

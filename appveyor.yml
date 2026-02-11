@@ -1,53 +1,95 @@
-version: 1.0.3-{build}
+version: 1.0.4-{build}
+image: Visual Studio 2022
 environment:
-  main_project: oscript-ftp
+  main_project: ftp
+  os1_link: https://oscript.io/downloads/1_9_4/x64/OneScript-1.9.4-x64.zip
+  os2_link: https://oscript.io/downloads/latest/OneScript-2.0.0-fdd-x64.zip
 before_build:
 - ps: nuget restore
 init:
+- REG ADD "HKLM\Software\Microsoft\Command Processor" /v Autorun /t REG_SZ /d "chcp 65001>nul" /f
 - ps: Set-WinSystemLocale ru-RU
-- ps: Start-Sleep -s 5
+- ps: Start-Sleep -s 15
 - ps: Restart-Computer
 install:
 - cmd: >-
-    mkdir engine
+    mkdir os2
 
-    cd engine
+    cd os2
 
-    appveyor DownloadFile http://oscript.io/downloads/latest/exe -FileName os.exe
+    appveyor DownloadFile %os2_link% -FileName fdd.zip
 
-    os.exe /silent
+    7z x fdd.zip > NUL
+    
+    bin\oscript.bat -version
 
-    set PATH=%ProgramFiles(x86)%\OneScript\bin;%PATH%
+    bin\oscript.bat lib\opm\src\cmd\opm.os install opm
 
     cd ..
+
+- cmd: >-
+    mkdir os1
+
+    cd os1
+
+    appveyor DownloadFile %os1_link% -FileName os1.zip
+
+    7z x os1.zip > NUL
     
-    appveyor DownloadFile https://github.com/dmpas/OneScriptDocumenter/releases/download/1.0.14/documenter.zip -FileName OneScriptDocumenter.zip
-    
+    bin\oscript.exe -version
+
+    bin\oscript.exe lib\opm\src\cmd\opm.os install opm
+
+    cd ..
+
+- cmd: >-
+
+    appveyor DownloadFile https://github.com/dmpas/OneScriptDocumenter/releases/download/1.0.13/documenter.zip -FileName OneScriptDocumenter.zip
+
     7z x OneScriptDocumenter.zip > NUL
-
-    oscript -version
-
-    opm install opm
 
 build:
   verbosity: minimal
 configuration: Release
 test_script:
-- cmd: nunit3-console --x86 NUnitTests\bin\%CONFIGURATION%\NUnitTests.dll
+- cmd: nunit3-console NUnitTests\bin\%CONFIGURATION%\net6.0\NUnitTests.dll --result=myresults.xml;format=AppVeyor
+- cmd: >-
+    set OSLIB_LOADER_TRACE=1
+    
+    os2\bin\oscript.bat testcomponent.os
+    
+- cmd: >-
+    set OSLIB_LOADER_TRACE=1
+    
+    os1\bin\oscript.exe testcomponent.os
 
 after_build:
 - cmd: >-
 
-    del %main_project%\bin\%CONFIGURATION%\*.pdb
+    del %main_project%\bin\%CONFIGURATION%\net6.0\*.pdb
+    
+    mkdir oslib\Components\dotnet
 
-    mkdir bin
+    OneScriptDocumenter.exe json oslib\Components\dotnet\syntaxHelp.json %main_project%\bin\%CONFIGURATION%\net6.0\1script_%main_project%.dll
+    
+    del %main_project%\bin\%CONFIGURATION%\ScriptEngine*.* %main_project%\bin\%CONFIGURATION%\net6.0\NewtonSoft*.* %main_project%\bin\%CONFIGURATION%\net6.0\DotNetZip*.*
+    
+    xcopy %main_project%\bin\%CONFIGURATION%\net6.0\* oslib\Components\dotnet\
+    
+    xcopy README.md oslib\
+    
+    cd oslib
 
-    OneScriptDocumenter.exe json bin\syntaxHelp.json %main_project%\bin\%CONFIGURATION%\%main_project%.dll
-
-    xcopy %main_project%\bin\%CONFIGURATION%\%main_project%.* bin\
-
-    opm build .
+    ..\os2\bin\oscript.bat ..\os2\lib\opm\src\cmd\opm.os build .
+    
+    for %%X in (*.ospx) do (..\os2\bin\oscript.bat ..\os2\lib\opm\src\cmd\opm.os install -f %%X )
+    
+    for %%X in (*.ospx) do (..\os1\bin\oscript.exe ..\os1\lib\opm\src\cmd\opm.os install -f %%X )
+    
+    cd ..
 
 artifacts:
-- path: .\*.ospx
-  name: component
+- path: oslib\*.ospx
+  name: ftp
+- path: oslib\Components\dotnet\*.dll
+  name: components
