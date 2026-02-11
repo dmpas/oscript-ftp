@@ -52,7 +52,7 @@ build:
   verbosity: minimal
 configuration: Release
 test_script:
-- cmd: nunit3-console NUnitTests\bin\%CONFIGURATION%\net6.0\NUnitTests.dll --result=myresults.xml;format=AppVeyor
+- cmd: nunit3-console NUnitTests\bin\%CONFIGURATION%\net8.0\NUnitTests.dll --result=myresults.xml;format=AppVeyor
 - cmd: >-
     set OSLIB_LOADER_TRACE=1
     
@@ -66,15 +66,15 @@ test_script:
 after_build:
 - cmd: >-
 
-    del %main_project%\bin\%CONFIGURATION%\net6.0\*.pdb
+    del %main_project%\bin\%CONFIGURATION%\net8.0\*.pdb
     
     mkdir oslib\Components\dotnet
 
-    OneScriptDocumenter.exe json oslib\Components\dotnet\syntaxHelp.json %main_project%\bin\%CONFIGURATION%\net6.0\1script_%main_project%.dll
+    OneScriptDocumenter.exe json oslib\Components\dotnet\syntaxHelp.json %main_project%\bin\%CONFIGURATION%\net8.0\1script_%main_project%.dll
     
-    del %main_project%\bin\%CONFIGURATION%\ScriptEngine*.* %main_project%\bin\%CONFIGURATION%\net6.0\NewtonSoft*.* %main_project%\bin\%CONFIGURATION%\net6.0\DotNetZip*.*
+    del %main_project%\bin\%CONFIGURATION%\ScriptEngine*.* %main_project%\bin\%CONFIGURATION%\net8.0\NewtonSoft*.* %main_project%\bin\%CONFIGURATION%\net8.0\DotNetZip*.*
     
-    xcopy %main_project%\bin\%CONFIGURATION%\net6.0\* oslib\Components\dotnet\
+    xcopy %main_project%\bin\%CONFIGURATION%\net8.0\* oslib\Components\dotnet\
     
     xcopy README.md oslib\
     
