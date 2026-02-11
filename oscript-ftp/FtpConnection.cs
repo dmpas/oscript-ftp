@@ -441,24 +441,23 @@ namespace oscriptFtp
 		/// <param name="secureConnection">Защищённое соединение. Необязательный</param>
 		[ScriptConstructor]
 		public static IRuntimeContextInstance Constructor(
-			TypeActivationContext ctx,
-			IValue server,
-			IValue port = null,
-			IValue userName = null,
-			IValue password = null,
+			string server,
+			int port = 21,
+			string userName = null,
+            string password = null,
 			InternetProxyContext proxy = null,
-			IValue passiveConnection = null,
-			IValue timeout = null,
+			bool passiveConnection = false,
+			int timeout = 0,
 			IValue secureConnection = null
 		)
 		{
-			var conn = new FtpConnection(server.AsString(ctx.CurrentProcess),
-			                             (int)(port?.AsNumber() ?? 21),
-			                             userName?.AsString(ctx.CurrentProcess),
-										 password?.AsString(ctx.CurrentProcess), 
+			var conn = new FtpConnection(server,
+			                             port,
+			                             userName,
+										 password, 
 			                             proxy,
-										 passiveConnection?.AsBoolean() ?? false,
-			                             (int)(timeout?.AsNumber() ?? 0),
+										 passiveConnection,
+			                             timeout,
 										 secureConnection);
 			return conn;
 		}
