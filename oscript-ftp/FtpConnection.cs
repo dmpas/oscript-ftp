@@ -440,24 +440,25 @@ namespace oscriptFtp
 		/// <param name="timeout">Таймаут. Необязательный</param>
 		/// <param name="secureConnection">Защищённое соединение. Необязательный</param>
 		[ScriptConstructor]
-		public static IRuntimeContextInstance Constructor(
-			string server,
-			int port = 21,
-			string userName = null,
-            string password = null,
+		public static IValue Constructor(
+			TypeActivationContext ctx,
+			IValue server,
+			IValue port = null,
+			IValue userName = null,
+			IValue password = null,
 			InternetProxyContext proxy = null,
-			bool passiveConnection = false,
-			int timeout = 0,
+			IValue passiveConnection = null,
+			IValue timeout = null,
 			IValue secureConnection = null
 		)
 		{
-			var conn = new FtpConnection(server,
-			                             port,
-			                             userName,
-										 password, 
+			var conn = new FtpConnection(server.AsString(ctx.CurrentProcess),
+			                             (int)(port?.AsNumber() ?? 21),
+			                             userName?.AsString(ctx.CurrentProcess),
+										 password?.AsString(ctx.CurrentProcess), 
 			                             proxy,
-										 passiveConnection,
-			                             timeout,
+										 passiveConnection?.AsBoolean() ?? false,
+			                             (int)(timeout?.AsNumber() ?? 0),
 										 secureConnection);
 			return conn;
 		}

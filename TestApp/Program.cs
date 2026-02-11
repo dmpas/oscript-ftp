@@ -72,7 +72,11 @@ namespace TestApp
 			var script = engine.Loader.FromString(SCRIPT);
 			var process = engine.CreateProcess(new MainClass(), script);
 
-			var conn = FtpConnection.Constructor(server, port, userName, password) as FtpConnection;
+			var conn = FtpConnection.Constructor(new OneScript.Types.TypeActivationContext() { CurrentProcess = bslProcess},
+				ValueFactory.Create(server), ValueFactory.Create(port),
+				ValueFactory.Create(userName), ValueFactory.Create(password),
+				null, ValueFactory.Create(false)
+			) as FtpConnection;
 			conn.SetCurrentDirectory("/123");
 			Console.WriteLine("PWD: {0}", conn.GetCurrentDirectory());
 
