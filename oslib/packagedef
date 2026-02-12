@@ -5,6 +5,7 @@
 	.АдресАвтора("sergey.batanov@dmpas.ru")
 	.Описание("FTP-Клиент")
 	.ВключитьФайл("Components")
+	.ВключитьФайл("package-loader.os")
 	.ВключитьФайл("README.md")
 ;
 

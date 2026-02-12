@@ -15,6 +15,7 @@ using System.Text.RegularExpressions;
 using System.IO;
 using System.Collections.Generic;
 using OneScript.Execution;
+using OneScript.Types;
 
 namespace oscriptFtp
 {
@@ -439,8 +440,8 @@ namespace oscriptFtp
 		/// <param name="timeout">Таймаут. Необязательный</param>
 		/// <param name="secureConnection">Защищённое соединение. Необязательный</param>
 		[ScriptConstructor]
-		public static IRuntimeContextInstance Constructor(
-			IBslProcess process,
+		public static IValue Constructor(
+			TypeActivationContext ctx,
 			IValue server,
 			IValue port = null,
 			IValue userName = null,
@@ -451,11 +452,14 @@ namespace oscriptFtp
 			IValue secureConnection = null
 		)
 		{
-			var conn = new FtpConnection(server.AsString(process),
+			var conn = new FtpConnection(server.AsString(ctx.CurrentProcess),
 			                             (int)(port?.AsNumber() ?? 21),
-			                             userName?.AsString(process), password?.AsString(process), 
-			                             proxy, passiveConnection?.AsBoolean() ?? false,
-			                             (int)(timeout?.AsNumber() ?? 0), secureConnection);
+			                             userName?.AsString(ctx.CurrentProcess),
+										 password?.AsString(ctx.CurrentProcess), 
+			                             proxy,
+										 passiveConnection?.AsBoolean() ?? false,
+			                             (int)(timeout?.AsNumber() ?? 0),
+										 secureConnection);
 			return conn;
 		}
 	}
