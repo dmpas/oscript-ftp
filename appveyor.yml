@@ -1,9 +1,9 @@
-version: 1.0.4-{build}
+version: 1.0.5-{build}
 image: Visual Studio 2022
 environment:
   main_project: oscript-ftp
   os1_link: https://oscript.io/downloads/1_9_4/x64/OneScript-1.9.4-x64.zip
-  os2_link: https://oscript.io/downloads/latest/OneScript-2.0.0-fdd-x64.zip
+  os2_link: https://oscript.io/downloads/latest/OneScript-2.1.0-fdd-x64.zip
 before_build:
 - ps: nuget restore
 init:

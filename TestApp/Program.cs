@@ -83,6 +83,9 @@ namespace TestApp
 			conn.SetCurrentDirectory("456");
 			Console.WriteLine("PWD: {0}", conn.GetCurrentDirectory());
 
+			conn.CreateDirectory("/123");
+            conn.CreateDirectory("/123/456");
+
             conn.Delete(@"../", @"some.zip");
 
 			conn.Put(@"C:\temp\some.zip", "/some.zip");
