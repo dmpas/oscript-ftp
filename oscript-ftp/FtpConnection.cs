@@ -14,7 +14,6 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Collections.Generic;
-using OneScript.Execution;
 using OneScript.Types;
 
 namespace oscriptFtp
