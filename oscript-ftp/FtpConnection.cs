@@ -7,12 +7,14 @@ at http://mozilla.org/MPL/2.0/.
 using System;
 using ScriptEngine.Machine;
 using ScriptEngine.Machine.Contexts;
-using ScriptEngine.HostedScript.Library.Http;
-using ScriptEngine.HostedScript.Library;
+using OneScript.StandardLibrary.Http;
+using OneScript.Contexts;
+using OneScript.StandardLibrary.Collections;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Collections.Generic;
+using OneScript.Types;
 
 namespace oscriptFtp
 {
@@ -241,7 +243,7 @@ namespace oscriptFtp
 				{
 					return result;
 				}
-				throw ex;
+				throw;
 			}
 			catch
 			{
@@ -437,7 +439,8 @@ namespace oscriptFtp
 		/// <param name="timeout">Таймаут. Необязательный</param>
 		/// <param name="secureConnection">Защищённое соединение. Необязательный</param>
 		[ScriptConstructor]
-		public static IRuntimeContextInstance Constructor(
+		public static IValue Constructor(
+			TypeActivationContext ctx,
 			IValue server,
 			IValue port = null,
 			IValue userName = null,
@@ -448,11 +451,14 @@ namespace oscriptFtp
 			IValue secureConnection = null
 		)
 		{
-			var conn = new FtpConnection(server.AsString(),
+			var conn = new FtpConnection(server.AsString(ctx.CurrentProcess),
 			                             (int)(port?.AsNumber() ?? 21),
-			                             userName?.AsString(), password?.AsString(), 
-			                             proxy, passiveConnection?.AsBoolean() ?? false,
-			                             (int)(timeout?.AsNumber() ?? 0), secureConnection);
+			                             userName?.AsString(ctx.CurrentProcess),
+										 password?.AsString(ctx.CurrentProcess), 
+			                             proxy,
+										 passiveConnection?.AsBoolean() ?? false,
+			                             (int)(timeout?.AsNumber() ?? 0),
+										 secureConnection);
 			return conn;
 		}
 	}

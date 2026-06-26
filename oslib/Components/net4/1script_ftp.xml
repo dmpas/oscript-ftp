@@ -1,0 +1,235 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>oscript-ftp</name>
+    </assembly>
+    <members>
+        <member name="T:oscriptFtp.FtpConnection">
+            <summary>
+            Предназначен для работы с файлами посредством FTP.
+            </summary>
+        </member>
+        <member name="M:oscriptFtp.FtpConnection.#ctor(System.String,System.Int32,System.String,System.String,ScriptEngine.HostedScript.Library.Http.InternetProxyContext,System.Boolean,System.Int32,ScriptEngine.Machine.IValue)">
+            <summary>
+            Создаёт новый объект <see cref="T:oscriptFtp.FtpConnection">FTPСоединение</see>.
+            </summary>
+            <param name="server">Сервер.</param>
+            <param name="port">Порт. Необязательный</param>
+            <param name="userName">Имя пользователя. Необязательный</param>
+            <param name="password">Пароль. Необязательный</param>
+            <param name="proxy">Прокси. Необязательный</param>
+            <param name="passiveConnection">Пассивный режим.</param>
+            <param name="timeout">Таймаут.</param>
+            <param name="secureConnection">Защищённое соединение.</param>
+        </member>
+        <member name="P:oscriptFtp.FtpConnection.SecureConnection">
+            <summary>
+            Защищённое соединение.
+            </summary>
+            <value>Содержит объект защищённого соединения.</value>
+        </member>
+        <member name="P:oscriptFtp.FtpConnection.Password">
+            <summary>
+            Пароль.
+            </summary>
+            <value>Пароль.</value>
+        </member>
+        <member name="P:oscriptFtp.FtpConnection.PassiveMode">
+            <summary>
+            Пассивный режим.
+            </summary>
+            <value>Пассивный режим.</value>
+        </member>
+        <member name="P:oscriptFtp.FtpConnection.User">
+            <summary>
+            Имя пользователя.
+            </summary>
+            <value>Имя пользователя.</value>
+        </member>
+        <member name="P:oscriptFtp.FtpConnection.Port">
+            <summary>
+            Порт.
+            </summary>
+            <value>Порт.</value>
+        </member>
+        <member name="P:oscriptFtp.FtpConnection.Proxy">
+            <summary>
+            Прокси.
+            </summary>
+            <value>Прокси.</value>
+        </member>
+        <member name="P:oscriptFtp.FtpConnection.Server">
+            <summary>
+            Сервер.
+            </summary>
+            <value>Сервер, с которым устанавливается соединение.</value>
+        </member>
+        <member name="P:oscriptFtp.FtpConnection.Timeout">
+            <summary>
+            Таймаут.
+            </summary>
+            <value>Таймаут в секундах. 0 - без таймаута.</value>
+        </member>
+        <member name="M:oscriptFtp.FtpConnection.FindFiles(System.String,System.String,System.Boolean)">
+            <summary>
+            Ищет файлы на удалённом сервере.
+            </summary>
+            <returns>Массив.</returns>
+            <param name="path">Путь.</param>
+            <param name="mask">Маска. Необязательный</param>
+            <param name="recursive">Искать во вложенных каталогах.</param>
+        </member>
+        <member name="M:oscriptFtp.FtpConnection.Put(System.String,System.String)">
+            <summary>
+            Записывает локальный файл на удалённый сервер.
+            </summary>
+            <param name="localFilePath">Путь к файлу на локальном компьютере.</param>
+            <param name="remoteFilePath">Путь к файлу на удалённом сервере.</param>
+        </member>
+        <member name="M:oscriptFtp.FtpConnection.Get(System.String,System.String)">
+            <summary>
+            Скачивает файл с удалённого сервера.
+            </summary>
+            <param name="remoteFilePath">Путь к файлу ан удалённом сервере.</param>
+            <param name="localFilePath">Путь к файлу, в который будет записан удалённый файл.</param>
+        </member>
+        <member name="M:oscriptFtp.FtpConnection.Delete(System.String,System.String)">
+            <summary>
+            Удаляет файлы на сервере.
+            </summary>
+            <param name="path">Путь.</param>
+            <param name="mask">Маска. Необязательный</param>
+        </member>
+        <member name="M:oscriptFtp.FtpConnection.Move(System.String,System.String)">
+            <summary>
+            Перемещает файл на удалённом сервере.
+            </summary>
+            <param name="currentPath">Путь к перемещаемому файлу.</param>
+            <param name="newPath">Новый Путь файла.</param>
+        </member>
+        <member name="M:oscriptFtp.FtpConnection.GetWorkingDirectory">
+            <summary>
+            Получает рабочий каталог на удалённом сервере.
+            </summary>
+            <returns>Рабочий каталог.</returns>
+        </member>
+        <member name="M:oscriptFtp.FtpConnection.GetCurrentDirectory">
+            <summary>
+            Возвращает текущий каталог соединения.
+            </summary>
+            <returns>Текущий каталог.</returns>
+        </member>
+        <member name="M:oscriptFtp.FtpConnection.SetCurrentDirectory(System.String)">
+            <summary>
+            Устанавливает текущий каталог соединения.
+            </summary>
+            <param name="directory">Каталог.</param>
+        </member>
+        <member name="M:oscriptFtp.FtpConnection.CreateDirectory(System.String)">
+            <summary>
+            Создаёт каталог на удалённом сервере.
+            </summary>
+            <param name="dirName">Имя каталога.</param>
+        </member>
+        <member name="M:oscriptFtp.FtpConnection.Constructor(ScriptEngine.Machine.IValue,ScriptEngine.Machine.IValue,ScriptEngine.Machine.IValue,ScriptEngine.Machine.IValue,ScriptEngine.HostedScript.Library.Http.InternetProxyContext,ScriptEngine.Machine.IValue,ScriptEngine.Machine.IValue,ScriptEngine.Machine.IValue)">
+            <summary>
+            Создаёт объект FTPСоединение.
+            </summary>
+            <returns>FTPСоединение.</returns>
+            <param name="server">Подключаемый сервер.</param>
+            <param name="port">Порт. Необязательный</param>
+            <param name="userName">Имя пользователя. Необязательный</param>
+            <param name="password">Пароль. Необязательный</param>
+            <param name="proxy">Прокси. Необязательный</param>
+            <param name="passiveConnection">Пассивный режим. Необязательный</param>
+            <param name="timeout">Таймаут. Необязательный</param>
+            <param name="secureConnection">Защищённое соединение. Необязательный</param>
+        </member>
+        <member name="T:oscriptFtp.FtpFile">
+            <summary>
+            Описывает файл на удалённом сервере.
+            </summary>
+        </member>
+        <member name="M:oscriptFtp.FtpFile.#ctor(oscriptFtp.FtpConnection,System.String,System.String,System.Boolean)">
+            <summary>
+            Создаёт описание файла.
+            </summary>
+            <param name="conn">FTP-Соединение.</param>
+            <param name="path">Путь к файлу.</param>
+            <param name="filename">Имя файла.</param>
+            <param name="isDir"><c>true</c> если это каталог.</param>
+        </member>
+        <member name="P:oscriptFtp.FtpFile.Name">
+            <summary>
+            Имя файла.
+            </summary>
+            <value>Имя файла или каталога.</value>
+        </member>
+        <member name="P:oscriptFtp.FtpFile.BaseName">
+            <summary>
+            Имя без расширения.
+            </summary>
+            <value>Имя файла или каталога без расширения.</value>
+        </member>
+        <member name="P:oscriptFtp.FtpFile.FullName">
+            <summary>
+            Полное имя.
+            </summary>
+            <value>Полный путь к файлу.</value>
+        </member>
+        <member name="P:oscriptFtp.FtpFile.Path">
+            <summary>
+            Путь.
+            </summary>
+            <value>Каталог, в котором находится файл.</value>
+        </member>
+        <member name="P:oscriptFtp.FtpFile.Extension">
+            <summary>
+            Расширение.
+            </summary>
+            <value>Расширение файла.</value>
+        </member>
+        <member name="M:oscriptFtp.FtpFile.IsFile">
+            <summary>
+            Определяет, что путь указывает на файл.
+            </summary>
+            <returns><c>true</c>, если это файл, <c>false</c> - это каталог.</returns>
+        </member>
+        <member name="M:oscriptFtp.FtpFile.IsDirectory">
+            <summary>
+            Определяет, что путь указывает на каталог.
+            </summary>
+            <returns><c>true</c>, если это каталог, <c>false</c> - это файл.</returns>
+        </member>
+        <member name="M:oscriptFtp.FtpFile.GetModificationTime">
+            <summary>
+            Получает время последнего изменения файла.
+            </summary>
+            <returns>Время последнего изменения.</returns>
+        </member>
+        <member name="M:oscriptFtp.FtpFile.GetHidden">
+            <summary>
+            Получает атрибут невидимости.
+            </summary>
+            <returns><c>true</c>, если у файла есть атрибут "Скрыты", <c>false</c> в противном случае.</returns>
+        </member>
+        <member name="M:oscriptFtp.FtpFile.GetReadOnly">
+            <summary>
+            Получает атрибут "Только для чтения".
+            </summary>
+            <returns><c>true</c>, если установлен атрибут "Только для чтения", <c>false</c> в противном случае.</returns>
+        </member>
+        <member name="M:oscriptFtp.FtpFile.Size">
+            <summary>
+            Определяет размер файла.
+            </summary>
+            <returns>Размер файла.</returns>
+        </member>
+        <member name="M:oscriptFtp.FtpFile.ToString">
+            <summary>
+            Returns a <see cref="T:System.String"/> that represents the current <see cref="T:oscriptFtp.FtpFile"/>.
+            </summary>
+            <returns>A <see cref="T:System.String"/> that represents the current <see cref="T:oscriptFtp.FtpFile"/>.</returns>
+        </member>
+    </members>
+</doc>
